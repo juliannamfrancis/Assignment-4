@@ -1,0 +1,81 @@
+1. Create a new script and save it as assignment4.m. This will be the master script.
+  %New script saved in MATLAB.
+
+2. Create a function to import your data names importfile.m.
+  %New fuction created and stored in MATLAB.
+
+3. Using the import function, import each column as a separate vector and use the column headers as variable names.
+  %This code imported the csv file into an array with attained column values defined as below:
+  %subID = Subject ID
+  %age = Age
+  %gender = Gender (M=0, F=1)
+  %weight = Weight (kgs)
+  %dn = Days n =1,2,3 respectively.
+[subID, age, gender, weight, d1, d2, d3] = importfile('isok_data_6803.csv');
+
+4. Create a function genderIsoCalc.m that returns four outputs.
+  maleIsoIndMeans: Days 1,2,3 averages for men
+  femaleIsoIndMeans: Days 1,2,3 averages for women
+  maleGroupIsoMean: Average of Days 1,2,3 for men
+  femaleGroupIsoMean: Average of Days 1,2,3 for women
+  %CREATE FUNCTION
+    function [maleIsoIndMeans,maleGroupIsoMean,femaleIsoIndMeans, femaleGroupIsoMean] = genderIsoCalc(gender,d1,d2,d3)
+       for i=1:length(gender)
+          if gender(i) == 'M'
+              d1m = mean(d1);
+              d2m = mean(d2);
+              d3m = mean(d3);
+          elseif gender(i) == 'F'
+                d1f = mean(d1);
+                d2f = mean(d2);
+                d3f = mean(d3);
+         end
+      end
+              maleIsoIndMeans = [d1m,d2m,d3m]
+              maleGroupIsoMean = mean(maleIsoIndMeans)
+              femaleIsoIndMeans = [d1f,d2f,d3f]
+              femaleGroupIsoMean = mean(femaleIsoIndMeans)
+    end
+  
+  %EXECUTE FUNCTION
+  [subID, age, gender, weight, d1, d2, d3] = importfile('isok_data_6803.csv');
+  [maleIsoIndMeans,maleGroupIsoMean,femaleIsoIndMeans, femaleGroupIsoMean] = genderIsoCalc(gender,d1,d2,d3)
+  
+
+5. Create a function dayComparer.m for Days 1-2 and 2-3.
+  %CREATE FUNCTION
+  function [day1toDay2,day2toDay3] = dayComparer(subID,d1,d2,d3)
+      day1toDay2 = [];
+      day2toDay3 = [];
+  for i = 1:length(subID)
+          if d2(i)>d1(i)
+              day1toDay2 = [day1toDay2; subID(i)];
+        end
+      if d3(i)>d2(i)
+               day2toDay3 = [day2toDay3; subID(i)];
+         end
+     end
+   end
+  
+  %EXECUTE FUNCTION
+  [day1toDay2,day2toDay3] = dayComparer(subID,d1,d2,d3)
+  
+
+6. Weight normalize the data and calculate group means for each day. These should be stored as normDay1mean, normDay2mean, and normDay3mean.
+  %CREATE FUNCTION
+    function [normDay1mean,normDay2mean,normDay3mean] = daysweightnorm(weight,d1,d2,d3)
+    for i = 1:length(weight)
+    normd1 = d1(i)./weight(i)
+    normd2 = d2(i)./weight(i)
+    normd3 = d3(i)./weight(i)
+    normDay1mean = mean(normd1)
+    normDay2mean = mean(normd2)
+    normDay3mean = mean(normd3)
+    end
+  %EXECUTE FUNCTION
+  [normDay1mean,normDay2mean,normDay3mean] = daysweightnorm(weight,d1,d2,d3)
+
+7. Export your results to a csv file names iso_results.csv.
+
+
+8. Comments!
