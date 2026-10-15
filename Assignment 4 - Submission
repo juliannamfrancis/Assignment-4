@@ -18,7 +18,10 @@
   femaleIsoIndMeans: Days 1,2,3 averages for women
   maleGroupIsoMean: Average of Days 1,2,3 for men
   femaleGroupIsoMean: Average of Days 1,2,3 for women
-  %CREATE FUNCTION
+  %CREATE GENDER FUNCTION
+  %This function operates to help you find the average of male and female
+  %performance for each day and as a cumulative averages of days 1-3. Days 1,
+  %2, and 3 denoted as d1, d2, and d3, respectively.
     function [maleIsoIndMeans,maleGroupIsoMean,femaleIsoIndMeans, femaleGroupIsoMean] = genderIsoCalc(gender,d1,d2,d3)
        for i=1:length(gender)
           if gender(i) == 'M'
@@ -37,13 +40,15 @@
               femaleGroupIsoMean = mean(femaleIsoIndMeans)
     end
   
-  %EXECUTE FUNCTION
+  %EXECUTE GENDER FUNCTION
   [subID, age, gender, weight, d1, d2, d3] = importfile('isok_data_6803.csv');
   [maleIsoIndMeans,maleGroupIsoMean,femaleIsoIndMeans, femaleGroupIsoMean] = genderIsoCalc(gender,d1,d2,d3)
   
 
 5. Create a function dayComparer.m for Days 1-2 and 2-3.
-  %CREATE FUNCTION
+  %CREATE DAY FUNCTION
+  %The purpose of this function it to call every subject that improved either
+  %from Day 1 to Day 2, or from Day 2 to Day 3.
   function [day1toDay2,day2toDay3] = dayComparer(subID,d1,d2,d3)
       day1toDay2 = [];
       day2toDay3 = [];
@@ -57,12 +62,16 @@
      end
    end
   
-  %EXECUTE FUNCTION
+  %EXECUTE DAY FUNCTION
   [day1toDay2,day2toDay3] = dayComparer(subID,d1,d2,d3)
   
 
 6. Weight normalize the data and calculate group means for each day. These should be stored as normDay1mean, normDay2mean, and normDay3mean.
-  %CREATE FUNCTION
+  %CREATE NORM FUNCTION
+  %This function normalizes the weight across the 3 days.
+  %normdn normalizes each subject for the nth day.
+  %normDaynmean is the average of all participants (now with normalized
+  %weight) across the 3 days.
     function [normDay1mean,normDay2mean,normDay3mean] = daysweightnorm(weight,d1,d2,d3)
     for i = 1:length(weight)
     normd1 = d1(i)./weight(i)
@@ -72,10 +81,38 @@
     normDay2mean = mean(normd2)
     normDay3mean = mean(normd3)
     end
-  %EXECUTE FUNCTION
+  %EXECUTE NORM FUNCTION
   [normDay1mean,normDay2mean,normDay3mean] = daysweightnorm(weight,d1,d2,d3)
 
 7. Export your results to a csv file names iso_results.csv.
+  %EXPORT DATA
+  %The values in the section identifies which variable has the most rows,
+  %then pads every multi-outputted variable with NaN until all have the same length.
 
+    maxRows = max([size(maleIsoIndMeans,1),size(femaleIsoIndMeans,1),length(day1toDay2), ...
+        length(day2toDay3)]);
+    malePadded = NaN(maxRows,3);
+        malePadded(1:size(maleIsoIndMeans,1),:) = maleIsoIndMeans;
+    femalePadded = NaN(maxRows,3);
+        femalePadded(1:size(femaleIsoIndMeans,1),:) = femaleIsoIndMeans;
+    day1toDay2Padded = NaN(maxRows,1);
+        day1toDay2Padded(1:length(day1toDay2)) = day1toDay2;
+    day2toDay3Padded = NaN(maxRows,1);
+        day2toDay3Padded(1:length(day2toDay3)) = day2toDay3;
+    maleGroupIsoPadded =  NaN(maxRows,1);
+        maleGroupIsoPadded(1) = maleGroupIsoMean;
+    femaleGroupIsoPadded =  NaN(maxRows,1);
+        femaleGroupIsoPadded(1) = femaleGroupIsoMean;
+    normDay1Padded = NaN(maxRows,1);
+        normDay1Padded(1)= normDay1mean;
+    normDay2Padded = NaN(maxRows,1);
+        normDay2Padded(1)= normDay2mean;
+    normDay3Padded = NaN(maxRows,1);
+        normDay3Padded(1)= normDay3mean;
+
+%DISPLAY RESULTS
+  Results = table(malePadded, maleGroupIsoPadded, femalePadded, femaleGroupIsoPadded, ...
+          day1toDay2Padded, day2toDay3Padded, normDay1Padded, normDay2Padded, normDay3Padded);
+  writetable(Results,'iso_results.csv')
 
 8. Comments!
